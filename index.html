@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>松弛排程 - 人格化日程管家</title>
+    <style>
+        /* 基础样式 - 极简黑白+科幻二次元 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Consolas", "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background: #000;
+            color: #fff;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255,255,255,0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255,255,255,0.05) 0%, transparent 20%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* 科幻网格背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: 
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        /* 标题栏 - 二次元科幻标题 */
+        .header {
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 3.5rem;
+            letter-spacing: 0.2em;
+            text-shadow: 
+                0 0 10px rgba(255,255,255,0.8),
+                0 0 20px rgba(150,200,255,0.5),
+                0 0 30px rgba(100,150,255,0.3);
+            position: relative;
+            display: inline-block;
+        }
+        .header h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+        }
+        .header p {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+        /* 主容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        /* 按钮样式 - 科幻霓虹感 */
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 1rem 2.5rem;
+            background: transparent;
+            border: 2px solid #fff;
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s ease;
+        }
+        .btn:hover {
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            transform: translateY(-3px);
+        }
+        .btn:hover::before {
+            left: 100%;
+        }
+        .btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+        /* 卡片样式 - 极简科幻卡片 */
+        .card {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+        }
+        .card h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        .card h2::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 60px;
+            height: 1px;
+            background: #fff;
+        }
+        .card ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .card li {
+            padding: 1rem;
+            border-left: 2px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+        }
+        .card li:hover {
+            border-left-color: #fff;
+            transform: translateX(5px);
+        }
+        .card li h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .card li p {
+            opacity: 0.7;
+            line-height: 1.6;
+        }
+        /* 文档区域 */
+        .docs {
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 3rem 0;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .docs h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 0.5rem;
+        }
+        .docs h4 {
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem;
+            color: #ccc;
+        }
+        .docs p, .docs li {
+            line-height: 1.8;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+        .docs ul {
+            padding-left: 2rem;
+            list-style: disc;
+        }
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            opacity: 0.5;
+            font-size: 0.9rem;
+        }
+        /* 滚动条样式 - 科幻风 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .card ul {
+                grid-template-columns: 1fr;
+            }
+            .btn-group {
+                gap: 1rem;
+            }
+            .btn {
+                padding: 0.8rem 1.8rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部标题 -->
+    <div class="header">
+        <h1>LoosePlan</h1>
+        <p>基于用户画像 + 可编辑记忆图谱的人格化日程管家</p>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 下载按钮组 -->
+        <div class="btn-group">
+            <a href="https://github.com/qingshanyu9/LoosePlan" class="btn" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                GitHub 仓库传送
+            </a>
+            <a href="#" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                立即下载
+            </a>
+            <a href="#docs" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                </svg>
+                使用文档
+            </a>
+        </div>
+
+        <!-- 核心功能 -->
+        <div class="card">
+            <h2>核心功能</h2>
+            <ul>
+                <li>
+                    <h3>人格化日程规划</h3>
+                    <p>基于MBTI/性格/习惯的用户画像，生成专属日程方案，附带证据来源与权重解释，支持一键重排与影响分析。</p>
+                </li>
+                <li>
+                    <h3>桌面+飞书双端联动</h3>
+                    <p>Windows桌面挂件为主入口，飞书私聊为手机端镜像，消息会话流统一，离线状态仅桌面端可用本地功能。</p>
+                </li>
+                <li>
+                    <h3>可编辑记忆图谱</h3>
+                    <p>个人Wiki式记忆管理，AI自动提取习惯偏好，用户可自由增删改，与用户画像实时同步。</p>
+                </li>
+                <li>
+                    <h3>日程可视化时间块</h3>
+                    <p>按小时排布的周/日视图，支持任务/事件/时间块管理，包含重复规则、依赖关系、优先级等完整能力。</p>
+                </li>
+                <li>
+                    <h3>自动订阅与每周回顾</h3>
+                    <p>定时联网检索指定关键词内容，自动生成每周回顾报告，桌面端可查历史，飞书端接收摘要。</p>
+                </li>
+                <li>
+                    <h3>纯本地数据管理</h3>
+                    <p>所有数据（聊天/日程/记忆）本地JSON/Markdown存储，支持一键导出导入，完全掌控数据安全。</p>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 产品特色 -->
+        <div class="card">
+            <h2>产品特色</h2>
+            <ul>
+                <li>
+                    <h3>证据化建议体系</h3>
+                    <p>所有日程建议均附带归一化到100%的证据权重，明确来源（用户画像/记忆/聊天/历史）与取舍逻辑。</p>
+                </li>
+                <li>
+                    <h3>全流程变更审计</h3>
+                    <p>所有日程/记忆/画像变更均记录JSON Patch与人类可读摘要，支持追溯与回放。</p>
+                </li>
+                <li>
+                    <h3>高度自定义体验</h3>
+                    <p>桌面挂件位置/大小/透明度可调整，全局快捷键自定义，数据目录可迁移，完全适配个人使用习惯。</p>
+                </li>
+                <li>
+                    <h3>极简初始化引导</h3>
+                    <p>首次启动完成画像问答即可生成专属报告，未完成初始化时飞书端拒绝服务，保证核心体验。</p>
+                </li>
+                <li>
+                    <h3>轻量化部署</h3>
+                    <p>无数据库依赖，仅需Python+PyQt5运行环境，安装包支持开机自启、卸载，适配Windows 10全版本。</p>
+                </li>
+                <li>
+                    <h3>灵活的导出导入</h3>
+                    <p>导出zip可选择是否包含敏感密钥，导入自动解压适配，轻松迁移至新电脑，数据不丢失。</p>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 使用文档 -->
+        <div id="docs" class="docs">
+            <h3>LoosePlan 使用文档</h3>
+            
+            <h4>一、安装与初始化</h4>
+            <p>1. 下载GitHub Release中的Inno Setup安装包，运行后选择安装目录（建议默认），勾选“开机自启”选项。</p>
+            <p>2. 首次启动需完成初始化流程：</p>
+            <ul>
+                <li>确认数据目录（默认%LOCALAPPDATA%\LoosePlan\），支持后续在设置页修改（自动复制旧数据）。</li>
+                <li>配置Kimi API Key（必填），飞书App ID/Secret为可选（仅启用手机端需要）。</li>
+                <li>完成机器人称呼与用户称呼配置，参与15~20题用户画像问答（非直接询问MBTI）。</li>
+                <li>生成用户画像报告并写入本地，未完成初始化将无法使用后续功能。</li>
+            </ul>
+
+            <h4>二、核心功能使用</h4>
+            <p>1. 桌面挂件操作：</p>
+            <ul>
+                <li>默认显示在桌面右下角，支持拖拽、贴边吸附，全局快捷键Alt+Space快速打开聊天页。</li>
+                <li>点击挂件展开功能环：聊天/日程/记忆图谱/每周回顾/设置/退出/隐藏。</li>
+                <li>聊天页关闭时收到新消息会显示角标提醒，打开聊天页自动清零。</li>
+            </ul>
+            <p>2. 日程管理：</p>
+            <ul>
+                <li>日程页左侧显示月历、计划统计、待办/成果，右侧为时间块视图（周/日切换）。</li>
+                <li>支持添加任务/事件/时间块，设置重复规则、依赖关系、优先级、截止时间。</li>
+                <li>点击“一键重排”可自动调整日程，查看延期风险、冲突时间块与替代方案。</li>
+            </ul>
+            <p>3. 记忆图谱：</p>
+            <ul>
+                <li>左侧为分类导航（用户画像/日程偏好/行为习惯等），右侧为条目编辑区。</li>
+                <li>AI自动提取的记忆条目支持手动编辑，可添加来源、关联场景、修改时间。</li>
+                <li>支持导入/导出记忆数据，所有修改均记录变更日志。</li>
+            </ul>
+            <p>4. 飞书联动：</p>
+            <ul>
+                <li>仅支持1v1私聊，首次收到飞书消息时绑定Owner OpenID，仅处理该用户消息。</li>
+                <li>桌面端离线时飞书端不可用，消息与桌面端合并为同一条会话流。</li>
+            </ul>
+
+            <h4>三、数据管理</h4>
+            <p>1. 导出/导入：</p>
+            <ul>
+                <li>在设置页点击“一键导出”，选择是否包含Kimi/飞书密钥，生成zip包存储在export目录。</li>
+                <li>导入时选择zip包，自动解压到当前数据目录，重启后生效。</li>
+            </ul>
+            <p>2. 变更日志：</p>
+            <ul>
+                <li>所有日程/记忆/订阅/画像变更均写入schedule/changes.jsonl，包含时间戳、操作人、摘要、JSON Patch。</li>
+                <li>日志支持审计与回放，可追溯任意数据修改记录。</li>
+            </ul>
+
+            <h4>四、自动订阅与每周回顾</h4>
+            <p>1. 自动订阅：在设置页配置关键词、检索频率、发送时间，结果自动写入订阅库并去重，支持桌面/飞书推送。</p>
+            <p>2. 每周回顾：按设置时间自动生成Markdown（详细）+JSON（概括）文件，桌面端可查历史，飞书端仅接收摘要，离线时跳过当次生成。</p>
+
+            <h4>五、常见问题</h4>
+            <p>Q1: 飞书端无法接收消息？</p>
+            <p>A1: 检查桌面端是否运行、飞书App ID/Secret配置是否正确、是否已绑定Owner OpenID，未完成初始化也会导致飞书端拒绝服务。</p>
+            <p>Q2: Kimi调用失败怎么办？</p>
+            <p>A2: 检查API Key是否有效，网络是否正常，失败时会提示重试，且不会写入日程变更。</p>
+            <p>Q3: 如何迁移数据到新电脑？</p>
+            <p>A3: 在旧电脑导出zip包（建议不包含密钥），新电脑安装后完成初始化，再导入zip包即可。</p>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        <p>松弛排程LoosePlan © 2026 - 人格化日程管家 | 本地数据 · 轻量化体验</p>
+    </div>
+</body>
+</html>
