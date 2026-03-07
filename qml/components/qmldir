@@ -1,0 +1,8 @@
+# qml/components/qmldir
+module components
+
+GlassWindow      1.0 GlassWindow.qml
+TitleBar         1.0 TitleBar.qml
+PrimaryButton    1.0 PrimaryButton.qml
+SecondaryButton  1.0 SecondaryButton.qml
+WizardScaffold   1.0 WizardScaffold.qml

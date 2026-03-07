@@ -1,0 +1,6 @@
+# qml/theme/qmldir
+module theme
+
+singleton Colors 1.0 Colors.qml
+singleton Metrics 1.0 Metrics.qml
+singleton Easing 1.0 Easing.qml
