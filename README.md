@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="松弛排程bar.png" alt="LoosePlan Logo">
+<img src="松弛排程logo.png" width="120" height="120" alt="LoosePlan Logo">
 
 # ✨ 松弛排程 · LoosePlan
 
@@ -183,4 +183,5 @@ LoosePlan/
 *让每一天，都有条不紊地松弛着。*
 
 </div>
+
 
