@@ -57,7 +57,7 @@ python -m app.main
 
 ### 方式二：一键安装（推荐普通用户）
 
-1. 📥 前往 [Releases](https://github.com/yourusername/LoosePlan/releases) 下载 `LoosePlan-Setup.exe`
+1. 📥 前往 [Releases](https://github.com/qingshanyu9/LoosePlan/releases) 下载 `LoosePlan-Setup.exe`
 2. 🖱️ 双击安装包，按向导完成安装
 3. ✨ 桌面快捷方式启动，即刻体验
 
@@ -146,6 +146,8 @@ LoosePlan/
 - [x] 聊天与日程核心功能
 - [x] 飞书端同步
 - [x] 每周回顾与智能提醒
+- [ ] 自动订阅
+- [ ] 推荐权重
 - [ ] 多语言支持
 - [ ] 主题切换（暗黑模式）
 - [ ] 数据可视化仪表盘
@@ -177,6 +179,7 @@ LoosePlan/
 *让每一天，都有条不紊地松弛着。*
 
 </div>
+
 
 
 
