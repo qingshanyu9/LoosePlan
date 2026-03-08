@@ -135,7 +135,6 @@ LoosePlan/
 │   ├── schedule/          # 日程月文件
 │   └── chat/              # 聊天日志
 ├── requirements.txt       # Python 依赖
-└── setup.iss              # 安装包配置
 ```
 
 ---
@@ -179,6 +178,7 @@ LoosePlan/
 *让每一天，都有条不紊地松弛着。*
 
 </div>
+
 
 
 
